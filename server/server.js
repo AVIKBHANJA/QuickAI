@@ -11,14 +11,15 @@ const app = express();
 await connectCloudinary();
 
 // Configure CORS to allow requests from the client
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:5173","https://quick-ai-server-blue-seven.vercel.app/"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "x-clerk-session-token"],
-  })
-);
+// app.use(
+//   cors({
+//     origin: ["http://localhost:5173", "http://127.0.0.1:5173","https://quick-ai-server-blue-seven.vercel.app/"],
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "Authorization", "x-clerk-session-token"],
+//   })
+// );
+app.use(cors())
 
 app.use(express.json());
 app.use(clerkMiddleware());
