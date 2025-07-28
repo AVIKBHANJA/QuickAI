@@ -184,7 +184,7 @@ const SocialMedia = () => {
 
       {/* Right Column - Result */}
       {result && (
-        <div className="flex-1 min-w-0 bg-white rounded-lg border border-gray-200 p-4">
+        <div className="flex-1 min-w-0 max-w-[50%] bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Share2 className="w-6 text-[#FF6B6B]" />
@@ -199,7 +199,7 @@ const SocialMedia = () => {
             </button>
           </div>
 
-          <div className="prose prose-sm max-w-none text-slate-700">
+          <div className="prose prose-sm max-w-none text-slate-700 break-words overflow-wrap-anywhere">
             <Markdown>{result}</Markdown>
           </div>
         </div>
