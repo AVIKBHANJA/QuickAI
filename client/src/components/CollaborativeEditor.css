@@ -1,0 +1,280 @@
+/* Main container */
+.collaborative-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header with toolbar */
+.editor-header {
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Main content wrapper */
+.editor-content-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Editor content area */
+.editor-content {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  padding: 24px;
+  max-width: none;
+}
+
+/* Threads sidebar */
+.threads-sidebar {
+  width: 300px;
+  border-left: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+/* Editor specific styles */
+.collaborative-editor {
+  outline: none;
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  padding: 16px;
+  line-height: 1.6;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.collaborative-editor:focus {
+  outline: none;
+}
+
+/* Tiptap element styles */
+.tiptap-heading {
+  margin: 24px 0 16px 0;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tiptap-heading.tiptap-heading-1 {
+  font-size: 2.25rem;
+}
+
+.tiptap-heading.tiptap-heading-2 {
+  font-size: 1.875rem;
+}
+
+.tiptap-heading.tiptap-heading-3 {
+  font-size: 1.5rem;
+}
+
+.tiptap-paragraph {
+  margin: 16px 0;
+  line-height: 1.6;
+}
+
+.tiptap-blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.tiptap-code {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+}
+
+.tiptap-code-block {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  overflow-x: auto;
+}
+
+.tiptap-highlight {
+  background: #fef3c7;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.tiptap-link {
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.tiptap-link:hover {
+  color: #1d4ed8;
+}
+
+.tiptap-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.tiptap-hr {
+  border: none;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 24px 0;
+}
+
+.tiptap-list-item {
+  margin: 4px 0;
+}
+
+.tiptap-ordered-list,
+.tiptap-bullet-list {
+  padding-left: 24px;
+  margin: 16px 0;
+}
+
+.tiptap-task-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 16px 0;
+}
+
+.tiptap-task-item {
+  display: flex;
+  align-items: flex-start;
+  margin: 8px 0;
+}
+
+.tiptap-task-item input[type="checkbox"] {
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+.tiptap-youtube {
+  margin: 16px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tiptap-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Collaboration cursors */
+.collaboration-cursor__caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid #0d9488;
+  border-right: 1px solid #0d9488;
+  word-break: normal;
+  pointer-events: none;
+}
+
+.collaboration-cursor__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  user-select: none;
+  color: #0d9488;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px 3px 3px 0;
+  background: #0d9488;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .editor-content-wrapper {
+    flex-direction: column;
+  }
+
+  .threads-sidebar {
+    width: 100%;
+    max-height: 300px;
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .editor-content {
+    padding: 16px;
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
+
+/* Liveblocks UI overrides */
+.lb-root {
+  --lb-accent: #3b82f6;
+  --lb-radius: 8px;
+}
+
+.lb-composer {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.lb-thread {
+  border-radius: 8px !important;
+  margin: 8px !important;
+}
+
+.lb-thread-metadata {
+  padding: 8px !important;
+}
+
+/* Custom scrollbar */
+.editor-content::-webkit-scrollbar,
+.threads-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editor-content::-webkit-scrollbar-track,
+.threads-sidebar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.editor-content::-webkit-scrollbar-thumb,
+.threads-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.editor-content::-webkit-scrollbar-thumb:hover,
+.threads-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
