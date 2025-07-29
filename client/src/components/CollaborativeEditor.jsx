@@ -3,9 +3,7 @@ import {
   useLiveblocksExtension,
   FloatingComposer,
   FloatingThreads,
-  FloatingToolbar,
   AnchoredThreads,
-  Toolbar,
 } from "@liveblocks/react-tiptap";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -17,8 +15,8 @@ import TaskList from "@tiptap/extension-task-list";
 import TaskItem from "@tiptap/extension-task-item";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Typography } from "@tiptap/extension-typography";
+import { TextStyle } from "@tiptap/extension-text-style";
 import Youtube from "@tiptap/extension-youtube";
-import { useThreads } from "@liveblocks/react";
 import Avatars from "./Avatars";
 import CustomToolbar from "./CustomToolbar";
 import "./CollaborativeEditor.css";
@@ -97,13 +95,18 @@ function Editor() {
         heading: {
           levels: [1, 2, 3],
           HTMLAttributes: {
-            class: "tiptap-heading",
+            class: (level) => `tiptap-heading tiptap-heading-${level}`,
           },
         },
         history: false, // Liveblocks handles history
         horizontalRule: {
           HTMLAttributes: {
             class: "tiptap-hr",
+          },
+        },
+        bulletList: {
+          HTMLAttributes: {
+            class: "tiptap-bullet-list",
           },
         },
         listItem: {
@@ -141,6 +144,9 @@ function Editor() {
         placeholder: "Start writing your collaborative document...",
         emptyEditorClass: "tiptap-empty",
       }),
+      TextStyle,
+      // Underline extension removed completely
+      // CustomUnderline, // Custom implementation also removed
       CustomTaskItem,
       TaskList.configure({
         HTMLAttributes: {
@@ -166,9 +172,9 @@ function Editor() {
       <div className="editor-header">
         <div className="flex items-center justify-between w-full">
           <div className="flex-1">
-            <Toolbar editor={editor} className="toolbar" />
+            {/* <Toolbar editor={editor} className="toolbar" /> */}
             {/* Fallback to custom toolbar if Liveblocks toolbar doesn't render */}
-            {!editor && <CustomToolbar editor={editor} />}
+            <CustomToolbar editor={editor} />
           </div>
           <Avatars />
         </div>
@@ -182,8 +188,8 @@ function Editor() {
           {/* Floating composer for comments */}
           <FloatingComposer editor={editor} style={{ width: 350 }} />
 
-          {/* Floating toolbar */}
-          <FloatingToolbar editor={editor} />
+          {/* Floating toolbar - Disabled to prevent suggestions when selecting text */}
+          {/* <FloatingToolbar editor={editor} /> */}
 
           {/* Floating threads for comments */}
           <FloatingThreads editor={editor} />

@@ -12,10 +12,7 @@ function CollaborativeDocument() {
 
   // Check if Liveblocks is properly configured
   const isConfigured =
-    import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY &&
-    !import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY.includes(
-      "YOUR_LIVEBLOCKS_PUBLIC_KEY"
-    );
+    import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY;
 
   if (!isConfigured) {
     return (

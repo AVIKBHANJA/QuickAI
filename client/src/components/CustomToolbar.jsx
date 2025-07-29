@@ -2,7 +2,7 @@ import React from "react";
 import {
   Bold,
   Italic,
-  Underline,
+  Strikethrough,
   Heading1,
   Heading2,
   Heading3,
@@ -17,6 +17,7 @@ import {
   AlignRight,
   Undo,
   Redo,
+  Minus,
 } from "lucide-react";
 
 const ToolbarButton = ({ onClick, isActive, disabled, children, title }) => (
@@ -44,14 +45,48 @@ export function CustomToolbar({ editor }) {
   const addImage = () => {
     const url = window.prompt("Enter image URL:");
     if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+      // Basic URL validation
+      try {
+        new URL(url);
+        editor.chain().focus().setImage({ src: url }).run();
+      } catch (error) {
+        alert("Please enter a valid URL");
+      }
     }
   };
 
   const addLink = () => {
-    const url = window.prompt("Enter URL:");
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run();
+    const previousUrl = editor.getAttributes("link").href;
+    const url = window.prompt("Enter URL:", previousUrl);
+
+    // cancelled
+    if (url === null) {
+      return;
+    }
+
+    // empty
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      return;
+    }
+
+    // Basic URL validation and auto-prefix
+    let validUrl = url;
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      validUrl = "https://" + url;
+    }
+
+    try {
+      new URL(validUrl);
+      // update link
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: validUrl })
+        .run();
+    } catch (error) {
+      alert("Please enter a valid URL");
     }
   };
 
@@ -95,7 +130,7 @@ export function CustomToolbar({ editor }) {
         isActive={editor.isActive("strike")}
         title="Strikethrough"
       >
-        <Underline size={16} />
+        <Strikethrough size={16} />
       </ToolbarButton>
       <ToolbarButton
         onClick={() => editor.chain().focus().toggleCode().run()}
@@ -109,21 +144,39 @@ export function CustomToolbar({ editor }) {
 
       {/* Headings */}
       <ToolbarButton
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        onClick={() => {
+          if (editor.isActive("heading", { level: 1 })) {
+            editor.chain().focus().setParagraph().run();
+          } else {
+            editor.chain().focus().toggleHeading({ level: 1 }).run();
+          }
+        }}
         isActive={editor.isActive("heading", { level: 1 })}
         title="Heading 1"
       >
         <Heading1 size={16} />
       </ToolbarButton>
       <ToolbarButton
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        onClick={() => {
+          if (editor.isActive("heading", { level: 2 })) {
+            editor.chain().focus().setParagraph().run();
+          } else {
+            editor.chain().focus().toggleHeading({ level: 2 }).run();
+          }
+        }}
         isActive={editor.isActive("heading", { level: 2 })}
         title="Heading 2"
       >
         <Heading2 size={16} />
       </ToolbarButton>
       <ToolbarButton
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        onClick={() => {
+          if (editor.isActive("heading", { level: 3 })) {
+            editor.chain().focus().setParagraph().run();
+          } else {
+            editor.chain().focus().toggleHeading({ level: 3 }).run();
+          }
+        }}
         isActive={editor.isActive("heading", { level: 3 })}
         title="Heading 3"
       >
@@ -172,13 +225,23 @@ export function CustomToolbar({ editor }) {
       >
         {"{}"}
       </ToolbarButton>
+      <ToolbarButton
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        title="Horizontal Rule"
+      >
+        <Minus size={16} />
+      </ToolbarButton>
 
       <ToolbarDivider />
 
       {/* Alignment */}
       <ToolbarButton
         onClick={() => editor.chain().focus().setTextAlign("left").run()}
-        isActive={editor.isActive({ textAlign: "left" })}
+        isActive={
+          editor.isActive({ textAlign: "left" }) ||
+          (!editor.isActive({ textAlign: "center" }) &&
+            !editor.isActive({ textAlign: "right" }))
+        }
         title="Align Left"
       >
         <AlignLeft size={16} />
@@ -204,12 +267,24 @@ export function CustomToolbar({ editor }) {
       <ToolbarButton
         onClick={addLink}
         isActive={editor.isActive("link")}
-        title="Add Link"
+        title={editor.isActive("link") ? "Edit Link" : "Add Link"}
       >
         <Link size={16} />
       </ToolbarButton>
       <ToolbarButton onClick={addImage} title="Add Image">
         <Image size={16} />
+      </ToolbarButton>
+
+      <ToolbarDivider />
+
+      {/* Utilities */}
+      <ToolbarButton
+        onClick={() =>
+          editor.chain().focus().clearNodes().unsetAllMarks().run()
+        }
+        title="Clear Formatting"
+      >
+        ✂️
       </ToolbarButton>
     </div>
   );

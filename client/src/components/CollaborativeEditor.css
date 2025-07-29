@@ -64,6 +64,26 @@
   outline: none;
 }
 
+/* Override prose styles that might interfere with lists */
+.collaborative-editor ol,
+.collaborative-editor ul {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.collaborative-editor ol {
+  list-style-type: decimal;
+}
+
+.collaborative-editor ul {
+  list-style-type: disc;
+}
+
+.collaborative-editor li {
+  margin: 4px 0;
+  display: list-item;
+}
+
 /* Tiptap element styles */
 .tiptap-heading {
   margin: 24px 0 16px 0;
@@ -81,6 +101,31 @@
 
 .tiptap-heading.tiptap-heading-3 {
   font-size: 1.5rem;
+}
+
+/* More specific heading styles to override any conflicts */
+.collaborative-editor h1,
+.ProseMirror h1 {
+  font-size: 2.25rem !important;
+  font-weight: 600 !important;
+  margin: 24px 0 16px 0 !important;
+  line-height: 1.2 !important;
+}
+
+.collaborative-editor h2,
+.ProseMirror h2 {
+  font-size: 1.875rem !important;
+  font-weight: 600 !important;
+  margin: 24px 0 16px 0 !important;
+  line-height: 1.2 !important;
+}
+
+.collaborative-editor h3,
+.ProseMirror h3 {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin: 24px 0 16px 0 !important;
+  line-height: 1.2 !important;
 }
 
 .tiptap-paragraph {
@@ -147,12 +192,29 @@
 
 .tiptap-list-item {
   margin: 4px 0;
+  display: list-item;
 }
 
 .tiptap-ordered-list,
 .tiptap-bullet-list {
   padding-left: 24px;
   margin: 16px 0;
+}
+
+.tiptap-ordered-list {
+  list-style-type: decimal;
+  list-style-position: outside;
+}
+
+.tiptap-bullet-list {
+  list-style-type: disc;
+  list-style-position: outside;
+}
+
+.tiptap-ordered-list .tiptap-list-item,
+.tiptap-bullet-list .tiptap-list-item {
+  display: list-item;
+  margin-left: 0;
 }
 
 .tiptap-task-list {
