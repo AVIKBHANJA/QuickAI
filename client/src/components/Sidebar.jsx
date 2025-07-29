@@ -11,6 +11,7 @@ import {
   SquarePen,
   Users,
   Edit3,
+  FolderOpen,
 } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router-dom";
@@ -19,6 +20,7 @@ const navItems = [
   { to: "/ai", label: "Dashboard", Icon: House },
   { to: "/ai/write-article", label: "Write Article", Icon: SquarePen },
   { to: "/ai/blog-titles", label: "Blog Titles", Icon: Hash },
+  { to: "/ai/rooms", label: "Collaborative Rooms", Icon: FolderOpen },
   {
     to: "/ai/collaborative-editor",
     label: "Collaborative Editor",

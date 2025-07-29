@@ -12,6 +12,7 @@ import ReviewResume from "./pages/ReviewResume";
 import SocialMedia from "./pages/SocialMedia";
 import Community from "./pages/Community";
 import CollaborativeDocument from "./pages/CollaborativeDocument";
+import RoomManager from "./components/RoomManager";
 import { useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="remove-object" element={<RemoveObject />} />
           <Route path="review-resume" element={<ReviewResume />} />
           <Route path="community" element={<Community />} />
+          <Route path="rooms" element={<RoomManager />} />
           <Route
             path="collaborative-editor"
             element={<CollaborativeDocument />}

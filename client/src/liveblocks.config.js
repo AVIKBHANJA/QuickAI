@@ -1,12 +1,60 @@
 import { createClient } from "@liveblocks/client";
 import { createRoomContext } from "@liveblocks/react";
 
-// Replace with your Liveblocks public key
+// Create client with access token authentication
 const client = createClient({
-  publicApiKey:
-    import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY ||
-    "pk_dev_YOUR_LIVEBLOCKS_PUBLIC_KEY",
   throttle: 16,
+
+  // Use access token authentication
+  authEndpoint: async (room) => {
+    try {
+      // Get the session token from Clerk
+      const token = await window.Clerk?.session?.getToken();
+
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_SERVER_URL || "http://localhost:3000"
+        }/api/liveblocks/auth`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ room }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+
+        if (
+          response.status === 500 &&
+          errorData.error === "Liveblocks not configured"
+        ) {
+          throw new Error(
+            "Liveblocks is not configured on the server. Please check the setup guide."
+          );
+        }
+
+        throw new Error(
+          `Authentication failed: ${response.status} - ${
+            errorData.message || "Unknown error"
+          }`
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Liveblocks authentication error:", error);
+      throw error;
+    }
+  },
+
   // Resolve users for mentions and user info
   resolveUsers: async ({ userIds }) => {
     // In a real app, you'd fetch user data from your database
