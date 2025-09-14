@@ -11,36 +11,34 @@ import RemoveObject from "./pages/RemoveObject";
 import ReviewResume from "./pages/ReviewResume";
 import SocialMedia from "./pages/SocialMedia";
 import Community from "./pages/Community";
-import CollaborativeDocument from "./pages/CollaborativeDocument";
+import Document from "./pages/Document";
 import RoomManager from "./components/RoomManager";
-import { useAuth } from "@clerk/clerk-react";
-import { useEffect } from "react";
+import { AuthProvider } from "./contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
-    <div>
-      <Toaster />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/ai" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="write-article" element={<WriteArticle />} />
-          <Route path="blog-titles" element={<BlogTitles />} />
-          <Route path="generate-images" element={<GenerateImages />} />
-          <Route path="social-media" element={<SocialMedia />} />
-          <Route path="remove-background" element={<RemoveBackground />} />
-          <Route path="remove-object" element={<RemoveObject />} />
-          <Route path="review-resume" element={<ReviewResume />} />
-          <Route path="community" element={<Community />} />
-          <Route path="rooms" element={<RoomManager />} />
-          <Route
-            path="collaborative-editor"
-            element={<CollaborativeDocument />}
-          />
-        </Route>
-      </Routes>
-    </div>
+    <AuthProvider>
+      <div>
+        <Toaster />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/ai" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="write-article" element={<WriteArticle />} />
+            <Route path="blog-titles" element={<BlogTitles />} />
+            <Route path="generate-images" element={<GenerateImages />} />
+            <Route path="social-media" element={<SocialMedia />} />
+            <Route path="remove-background" element={<RemoveBackground />} />
+            <Route path="remove-object" element={<RemoveObject />} />
+            <Route path="review-resume" element={<ReviewResume />} />
+            <Route path="community" element={<Community />} />
+            <Route path="rooms" element={<RoomManager />} />
+            <Route path="collaborative-editor" element={<Document />} />
+          </Route>
+        </Routes>
+      </div>
+    </AuthProvider>
   );
 };
 

@@ -1,40 +1,48 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { clerkMiddleware, requireAuth } from "@clerk/express";
+import bcrypt from "bcryptjs";
 import aiRouter from "./routes/aiRoutes.js";
 import connectCloudinary from "./configs/cloudinary.js";
 import userRouter from "./routes/userRoutes.js";
-import liveblocksRouter from "./routes/liveblocksRoutes.js";
+import { initializeDatabase } from "./configs/initDB.js";
 
 const app = express();
 
 await connectCloudinary();
+await initializeDatabase();
 
-// Configure CORS to allow requests from the client
-// app.use(
-//   cors({
-//     origin: ["http://localhost:5173", "http://127.0.0.1:5173","https://quick-ai-server-blue-seven.vercel.app/"],
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization", "x-clerk-session-token"],
-//   })
-// );
-app.use(cors());
+// Configure CORS
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5174",
+      "http://localhost:5173",
+      "http://127.0.0.1:5174",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use(express.json());
-app.use(clerkMiddleware());
+
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 
 app.get("/", (req, res) => res.send("Server is Live!"));
 
-app.use(requireAuth());
-
-app.use("/api/ai", aiRouter);
+// Routes
 app.use("/api/user", userRouter);
-app.use("/api/liveblocks", liveblocksRouter);
+app.use("/api/ai", aiRouter);
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
+  console.log("✅ Database initialized successfully");
   console.log("Server is running on port", PORT);
 });

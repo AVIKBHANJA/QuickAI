@@ -10,10 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.32.3",
-    "@liveblocks/client": "^3.2.1",
-    "@liveblocks/react": "^3.2.1",
-    "@liveblocks/react-tiptap": "^3.2.1",
     "@tailwindcss/vite": "^4.1.11",
     "@tiptap/extension-highlight": "^2.26.1",
     "@tiptap/extension-image": "^2.26.1",

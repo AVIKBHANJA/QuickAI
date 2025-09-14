@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
 import { Loader2, Copy, Share2, Sparkles } from "lucide-react";
 import Markdown from "react-markdown";

@@ -1,40 +1,63 @@
-import { clerkClient } from "@clerk/express";
+import jwt from 'jsonwebtoken';
+import sql from '../configs/db.js';
 
-// Middleware to check userId and hasPremiumPlan
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-export const auth = async (req, res, next) => {
+export const authenticateToken = async (req, res, next) => {
   try {
-    const { userId, has } = await req.auth();
-    const hasPremiumPlan = await has({ plan: "premium" });
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
 
-    const user = await clerkClient.users.getUser(userId);
-
-    if (!hasPremiumPlan && user.privateMetadata.free_usage) {
-      req.free_usage = user.privateMetadata.free_usage;
-    } else {
-      await clerkClient.users.updateUserMetadata(userId, {
-        privateMetadata: {
-          free_usage: 0,
-        },
-      });
-      req.free_usage = 0;
+    if (!token) {
+      return res.status(401).json({ error: 'Access token required' });
     }
 
-    req.plan = hasPremiumPlan ? "premium" : "free";
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Get user from database
+    const result = await sql`
+      SELECT id, name, email, is_paid, free_usage
+      FROM users WHERE id = ${decoded.userId}
+    `;
 
-    // Set user data for Liveblocks and other routes
-    req.user = {
-      userId: userId,
-      id: userId, // Some routes might expect 'id' instead of 'userId'
-      firstName: user.firstName,
-      lastName: user.lastName,
-      emailAddress: user.emailAddresses[0]?.emailAddress,
-      imageUrl: user.imageUrl,
-      fullName: `${user.firstName || ""} ${user.lastName || ""}`.trim(),
-    };
+    if (result.length === 0) {
+      return res.status(401).json({ error: 'User not found' });
+    }
 
+    req.user = result[0];
     next();
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    console.error('Auth error:', error);
+    return res.status(403).json({ error: 'Invalid token' });
   }
 };
+
+// Check if user has free usage or is paid
+export const checkUsage = async (req, res, next) => {
+  try {
+    const user = req.user;
+    
+    if (user.is_paid) {
+      req.plan = 'premium';
+      req.free_usage = null;
+      return next();
+    }
+
+    if (user.free_usage <= 0) {
+      return res.status(403).json({ 
+        error: 'Free usage limit reached. Please upgrade to premium.',
+        requiresUpgrade: true 
+      });
+    }
+
+    req.plan = 'free';
+    req.free_usage = user.free_usage;
+    next();
+  } catch (error) {
+    console.error('Usage check error:', error);
+    res.status(500).json({ error: 'Failed to check usage' });
+  }
+};
+
+// Legacy auth middleware for backward compatibility
+export const auth = authenticateToken;

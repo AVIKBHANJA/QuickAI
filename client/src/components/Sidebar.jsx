@@ -1,4 +1,4 @@
-import { Protect, useClerk, useUser } from "@clerk/clerk-react";
+import React from "react";
 import {
   Eraser,
   FileText,
@@ -13,8 +13,8 @@ import {
   Edit3,
   FolderOpen,
 } from "lucide-react";
-import React from "react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const navItems = [
   { to: "/ai", label: "Dashboard", Icon: House },
@@ -35,8 +35,7 @@ const navItems = [
 ];
 
 const Sidebar = ({ sidebar, setSidebar }) => {
-  const { user } = useUser();
-  const { signOut, openUserProfile } = useClerk();
+  const { user, logout, isPaid } = useAuth();
 
   return (
     <div
@@ -45,12 +44,10 @@ const Sidebar = ({ sidebar, setSidebar }) => {
       } transition-all duration-300 ease-in-out`}
     >
       <div className="my-7 w-full">
-        <img
-          src={user.imageUrl}
-          alt="User avatar"
-          className="w-13 rounded-full mx-auto"
-        />
-        <h1 className="mt-1 text-center">{user.fullName}</h1>
+        <div className="w-13 h-13 rounded-full mx-auto bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+          {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+        </div>
+        <h1 className="mt-1 text-center">{user?.name || user?.email}</h1>
         <div className="px-6 mt-5 text-sm text-gray-600 font-medium">
           {navItems.map(({ to, label, Icon }) => (
             <NavLink
@@ -78,23 +75,19 @@ const Sidebar = ({ sidebar, setSidebar }) => {
       </div>
 
       <div className="w-full border-t border-gray-200 p-4 px-7 flex items-center justify-between">
-        <div
-          onClick={openUserProfile}
-          className="flex gap-2 items-center cursor-pointer"
-        >
-          <img src={user.imageUrl} className="w-8 rounded-full" alt="" />
+        <div className="flex gap-2 items-center">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+            {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+          </div>
           <div>
-            <h1 className="text-sm font-medium">{user.fullName}</h1>
+            <h1 className="text-sm font-medium">{user?.name || user?.email}</h1>
             <p className="text-xs text-gray-500">
-              <Protect plan="premium" fallback="Free">
-                Premium
-              </Protect>{" "}
-              Plan
+              {isPaid ? "Premium" : "Free"} Plan
             </p>
           </div>
         </div>
         <LogOut
-          onClick={signOut}
+          onClick={logout}
           className="w-4.5 text-gray-400 hover:text-gray-700 transition cursor-pointer"
         />
       </div>

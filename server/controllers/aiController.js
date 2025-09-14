@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import sql from "../configs/db.js";
-import { clerkClient } from "@clerk/express";
 import axios from "axios";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
@@ -13,7 +12,7 @@ const AI = new OpenAI({
 
 export const generateArticle = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const userId = req.user.id;
     const { prompt, length } = req.body;
     const plan = req.plan;
     const free_usage = req.free_usage;
@@ -43,11 +42,11 @@ export const generateArticle = async (req, res) => {
         VALUES (${userId}, ${prompt}, ${content}, 'article')`;
 
     if (plan !== "premium") {
-      await clerkClient.users.updateUserMetadata(userId, {
-        privateMetadata: {
-          free_usage: free_usage + 1,
-        },
-      });
+      await sql`
+        UPDATE users 
+        SET free_usage = GREATEST(free_usage - 1, 0)
+        WHERE id = ${userId}
+      `;
     }
 
     res.json({ success: true, content });
@@ -59,7 +58,7 @@ export const generateArticle = async (req, res) => {
 
 export const generateBlogTitle = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const userId = req.user.id;
     const { prompt } = req.body;
     const plan = req.plan;
     const free_usage = req.free_usage;
@@ -84,11 +83,11 @@ export const generateBlogTitle = async (req, res) => {
         VALUES (${userId}, ${prompt}, ${content}, 'blog-title')`;
 
     if (plan !== "premium") {
-      await clerkClient.users.updateUserMetadata(userId, {
-        privateMetadata: {
-          free_usage: free_usage + 1,
-        },
-      });
+      await sql`
+        UPDATE users 
+        SET free_usage = GREATEST(free_usage - 1, 0)
+        WHERE id = ${userId}
+      `;
     }
 
     res.json({ success: true, content });
@@ -100,7 +99,7 @@ export const generateBlogTitle = async (req, res) => {
 
 export const generateImage = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const userId = req.user.id;
     const { prompt, publish } = req.body;
     const plan = req.plan;
 
@@ -143,7 +142,7 @@ export const generateImage = async (req, res) => {
 
 export const removeImageBackground = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const userId = req.user.id;
     const image = req.file;
     const plan = req.plan;
 
@@ -175,7 +174,7 @@ export const removeImageBackground = async (req, res) => {
 
 export const removeImageObject = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const userId = req.user.id;
     const { object } = req.body;
     const image = req.file;
     const plan = req.plan;
@@ -206,7 +205,7 @@ export const removeImageObject = async (req, res) => {
 
 export const resumeReview = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const userId = req.user.id;
     const resume = req.file;
     const plan = req.plan;
 
@@ -250,7 +249,7 @@ export const resumeReview = async (req, res) => {
 
 export const generateSocialMedia = async (req, res) => {
   try {
-    const { userId } = req.auth();
+    const userId = req.user.id;
     const { platform, topic, targetAudience, tone, context } = req.body;
     const plan = req.plan;
     const free_usage = req.free_usage;
@@ -349,11 +348,9 @@ Ensure the content is engaging and appropriate for the platform's typical audien
         VALUES (${userId}, ${`Generate ${platform} post about: ${topic}`}, ${content}, 'social-media')`;
 
     if (plan !== "premium") {
-      await clerkClient.users.updateUserMetadata(userId, {
-        privateMetadata: {
-          free_usage: free_usage + 1,
-        },
-      });
+      await sql`UPDATE users 
+        SET free_usage = free_usage + 1 
+        WHERE id = ${userId}`;
     }
 
     res.json({ success: true, content });

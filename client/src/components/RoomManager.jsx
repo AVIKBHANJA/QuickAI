@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function RoomManager() {
-  const { user } = useUser();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with loading true
   const [newRoomName, setNewRoomName] = useState("");
   const [joinRoomId, setJoinRoomId] = useState("");
   const [error, setError] = useState(null);
@@ -15,7 +15,6 @@ function RoomManager() {
   const fetchRooms = async () => {
     try {
       setLoading(true);
-      const token = await window.Clerk?.session?.getToken();
 
       if (!token) {
         throw new Error("No authentication token available");
@@ -37,10 +36,11 @@ function RoomManager() {
       }
 
       const data = await response.json();
-      setRooms(data.rooms);
+      setRooms(data.rooms || []);
     } catch (error) {
       console.error("Error fetching rooms:", error);
       setError("Failed to load rooms");
+      setRooms([]); // Ensure rooms is always an array
     } finally {
       setLoading(false);
     }
@@ -55,19 +55,24 @@ function RoomManager() {
 
     try {
       setLoading(true);
-      const token = await window.Clerk?.session?.getToken();
+      const token = localStorage.getItem("auth_token");
 
       if (!token) {
         throw new Error("No authentication token available");
       }
 
       const roomId = isShared
-        ? `shared-${Date.now()}-${newRoomName
-            .replace(/[^a-zA-Z0-9]/g, '-')
-            .toLowerCase()}`
-        : `${user.id}-${Date.now()}-${newRoomName
-            .replace(/[^a-zA-Z0-9]/g, '-')
-            .toLowerCase()}`;
+        ? `shared-${Date.now().toString().slice(-8)}-${newRoomName
+            .replace(/[^a-zA-Z0-9]/g, "-")
+            .toLowerCase()
+            .substring(0, 10)}`
+        : `${user.id
+            .replace(/[^a-zA-Z0-9]/g, "")
+            .toLowerCase()
+            .substring(0, 8)}-${Date.now().toString().slice(-6)}-${newRoomName
+            .replace(/[^a-zA-Z0-9]/g, "-")
+            .toLowerCase()
+            .substring(0, 8)}`;
 
       const response = await fetch(
         `${
@@ -81,10 +86,10 @@ function RoomManager() {
           },
           body: JSON.stringify({
             roomId,
-            defaultAccess: isShared ? ["room:write"] : [],
+            access: isShared ? "shared" : "private", // Use access instead of defaultAccess
             metadata: {
               name: newRoomName,
-              type: "collaborative-document",
+              type: "document",
               isShared,
             },
           }),
@@ -123,7 +128,7 @@ function RoomManager() {
       setError("Room ID is required");
       return;
     }
-    
+
     // Clear error and navigate to room
     setError(null);
     navigate(`/ai/collaborative-editor?room=${joinRoomId.trim()}`);
@@ -139,13 +144,16 @@ You can join by:
 2. Or manually entering room ID: ${roomId} in the app
 
 Room ID: ${roomId}`;
-    
-    navigator.clipboard.writeText(shareText).then(() => {
-      alert("Room sharing information copied to clipboard!");
-    }).catch(() => {
-      // Fallback if clipboard API fails
-      prompt("Copy this sharing information:", shareText);
-    });
+
+    navigator.clipboard
+      .writeText(shareText)
+      .then(() => {
+        alert("Room sharing information copied to clipboard!");
+      })
+      .catch(() => {
+        // Fallback if clipboard API fails
+        prompt("Copy this sharing information:", shareText);
+      });
   };
 
   useEffect(() => {
@@ -231,7 +239,8 @@ Room ID: ${roomId}`;
             Join Existing Room
           </h2>
           <p className="text-gray-600 mb-4">
-            Enter a room ID shared by someone else to join their collaborative session.
+            Enter a room ID shared by someone else to join their collaborative
+            session.
           </p>
 
           <div className="flex gap-4 items-end">
@@ -264,11 +273,11 @@ Room ID: ${roomId}`;
             <h2 className="text-xl font-semibold text-gray-900">Your Rooms</h2>
           </div>
 
-          {loading && rooms.length === 0 ? (
+          {loading && (!rooms || rooms.length === 0) ? (
             <div className="p-6 text-center">
               <p className="text-gray-600">Loading rooms...</p>
             </div>
-          ) : rooms.length === 0 ? (
+          ) : !rooms || rooms.length === 0 ? (
             <div className="p-6 text-center">
               <p className="text-gray-600">
                 No rooms found. Create your first room above!
@@ -276,7 +285,7 @@ Room ID: ${roomId}`;
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {rooms.map((room) => (
+              {(rooms || []).map((room) => (
                 <div
                   key={room.id}
                   className="p-6 hover:bg-gray-50 transition-colors"
@@ -292,12 +301,12 @@ Room ID: ${roomId}`;
                       <div className="flex gap-2 mt-2">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            room.id.startsWith("shared:")
+                            room.id.startsWith("shared-")
                               ? "bg-green-100 text-green-800"
                               : "bg-blue-100 text-blue-800"
                           }`}
                         >
-                          {room.id.startsWith("shared:") ? "Shared" : "Private"}
+                          {room.id.startsWith("shared-") ? "Shared" : "Private"}
                         </span>
                         {room.metadata?.createdBy === user.id && (
                           <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">

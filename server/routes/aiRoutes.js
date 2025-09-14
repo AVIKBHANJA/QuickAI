@@ -1,5 +1,5 @@
 import express from "express";
-import { auth } from "../middlewares/auth.js";
+import { authenticateToken, checkUsage } from "../middlewares/auth.js";
 import {
   generateArticle,
   generateBlogTitle,
@@ -13,25 +13,27 @@ import { upload } from "../configs/multer.js";
 
 const aiRouter = express.Router();
 
-aiRouter.post("/generate-article", auth, generateArticle);
-aiRouter.post("/generate-blog-title", auth, generateBlogTitle);
-aiRouter.post("/generate-image", auth, generateImage);
-aiRouter.post("/generate-social-media", auth, generateSocialMedia);
+aiRouter.post("/generate-article", authenticateToken, checkUsage, generateArticle);
+aiRouter.post("/generate-blog-title", authenticateToken, checkUsage, generateBlogTitle);
+aiRouter.post("/generate-image", authenticateToken, checkUsage, generateImage);
+aiRouter.post("/generate-social-media", authenticateToken, checkUsage, generateSocialMedia);
 
 aiRouter.post(
   "/remove-image-background",
   upload.single("image"),
-  auth,
+  authenticateToken,
+  checkUsage,
   removeImageBackground
 );
 
 aiRouter.post(
   "/remove-image-object",
   upload.single("image"),
-  auth,
+  authenticateToken,
+  checkUsage,
   removeImageObject
 );
 
-aiRouter.post("/resume-review", upload.single("resume"), auth, resumeReview);
+aiRouter.post("/resume-review", upload.single("resume"), authenticateToken, checkUsage, resumeReview);
 
 export default aiRouter;
